@@ -1,0 +1,50 @@
+#!/bin/bash
+
+address_book="address_book.txt"
+
+# Чи існує файл?
+if [ ! -e "$address_book" ]; then
+    touch "$address_book"
+fi
+
+case $1 in
+    new)
+        echo "$2, $3" >> "$address_book"
+        echo "Додано запис: $2, $3"
+        ;;
+
+    list)
+        if [ -s "$address_book" ]; then
+            cat "$address_book"
+        else
+            echo "Адресна книга порожня."
+        fi
+        ;;
+
+    remove)
+	if grep -q "^$2" "$address_book"; then
+	    grep -v "^$2" "$address_book" > "$address_book.tmp"
+	    mv "$address_book.tmp" "$address_book"
+	    echo "Видалено всі записи для імені: $2"
+	else
+	    echo "Ім'я \"$2\" не знайдено в адресній книзі."
+	fi
+	;;
+	
+    clear)
+        > "$address_book"
+        echo "Адресна книга очищена."
+        ;;
+
+    lookup)
+        if [ -s "$address_book" ]; then
+            grep "^$2" "$address_book" | awk -F', ' '{print $1, $2}'
+        else
+	    echo "Ім'я \"$2\" не знайдено в адресній книзі."
+        fi
+        ;;
+
+    *)
+        echo "Невірна команда. Використовуйте: new, list, remove, clear, lookup."
+        ;;
+esac
